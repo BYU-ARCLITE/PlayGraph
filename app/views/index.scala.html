@@ -1,0 +1,92 @@
+@()(implicit request: RequestHeader)
+
+@main("ARCLITE PlayGraph") {
+
+    <div id="homeBackground">
+        <div id="logoContainer">
+            <img src="@routes.Assets.at("images/logo.png")" alt="ARCLITE PlayGraph"/><br>
+            <em>By the <a href="http://arclite.byu.edu">ARCLITE Lab</a></em>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="span4 offset2">
+                <div class="well">
+                    <h2>Documentation</h2>
+                    <p>The documentation is hosted online thanks to apiary.io</p>
+                    <p><a class="btn btn-success btn-block btn-large" href="http://docs.playgraph.apiary.io/"><i class="icon-book"></i> Read it!</a></p>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="well">
+                    <h2>API Tokens</h2>
+                    <p>In order to use the PlayGraph APIs you must have an account and create Auth Tokens.</p>
+                    <a href="@routes.Application.loginPage()" class="btn btn-success btn-block"><i class="icon-lock icon-white"></i> Login</a>
+                    <a href="@routes.Application.createAccountPage()" class="btn btn-block"><i class="icon-user"></i> Create an Account</a>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        <h2>All About PlayGraphs</h2>
+
+        <h3>What is a PlayGraph?</h3>
+
+        <p>
+            PlayGraphs are a more powerful version of the common "playlist". Items can be sequenced and, like a graph,
+            there may be more than one way to traverse this collection of items. This offers a more powerful and
+            flexible framework for content consumption and learning.
+        </p>
+
+        <h3>What can a node contain?</h3>
+
+        <p>A node in a PlayGraph can contain three different things:</p>
+        <ul>
+            <li>Arbitrary data</li>
+            <li>Another graph</li>
+            <li>A node pool (described later down)</li>
+        </ul>
+        <p>
+            <strong>Arbitrary data</strong><br>
+            A node can contain anything. If you want to place the contents of a web page in it, that's just fine. You
+            could also put Base 64-encoded binary data in a node if you felt like it. It doesn't matter. When a node
+            with arbitrary data is being played, it simply returns its content. It's up to the graph "player" to know
+            how to interpret and display the data.
+        </p>
+        <p>
+            <strong>Another graph</strong><br>
+            A node may also contain a pointer to another PlayGraph. When the node is played, the current graph,
+            including the position in it, is pushed onto a context stack and the new graph is begun. Whenever the graph
+            finished, the saved graph is popped off the context stack and resumed.
+        </p>
+        <p>
+            <strong>A node pool</strong><br>
+            Similar to a node containing a graph, when a node containing a pointer to a node pool is run, the current
+            location is saved to the context stack and the node pool is executed.
+        </p>
+
+        <h3>How does a node pool work?</h3>
+        <p>
+            The purpose of a node pool is to provide dynamic possibilities to a graph. It is defined by a collection of
+            nodes and a selection mechanism. First off, the selection mechanism is run and generates a list of nodes to
+            visit drawing from the defined collection of nodes. These nodes are then run in the generated order,
+            ignoring their own branching logic. When all the nodes are finished, then the node pool is done executing.
+        </p>
+        <p>
+            The following is an example of how a node pool could be used. The graph is a tutorial on French vocabulary.
+            At a certain point, the student is quizzed on vocab. The nodes in the node pool each would contain a
+            question about a vocab word. The selection mechanism would randomly select 10 of these. So, to the student,
+            it would appear that he or she was simply asked 10 random questions about the vocabulary.
+        </p>
+
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            PlayGraph a product of the <a href="http://arclite.byu.edu">ARCLITE Lab</a>.
+            Copyright &copy; 2013 <a href="http://byu.edu">Brigham Young Univeristy</a>.
+        </div>
+    </div>
+    
+}

@@ -1,0 +1,47 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.Application.index
+
+# Auth Token management
+GET     /login                                 controllers.Application.loginPage
+POST    /login                                 controllers.Application.login
+GET     /signup                                controllers.Application.createAccountPage
+POST    /signup                                controllers.Application.createAccount
+GET     /home                                  controllers.Application.home
+POST    /home/authToken                        controllers.Application.createToken
+GET     /home/authToken/:id/delete             controllers.Application.deleteToken(id: String)
+GET     /logout                                controllers.Application.logout
+
+# API Definition
+POST    /api/v1/player/start                   controllers.api.Player.start
+POST    /api/v1/player/update                  controllers.api.Player.update
+GET     /api/v1/player/content/:sessionId      controllers.api.Player.render(sessionId: Long)
+
+POST    /api/v1/author/graph                   controllers.api.Graphs.create
+GET     /api/v1/author/graph/:id               controllers.api.Graphs.get(id: Long)
+POST    /api/v1/author/graph/:id               controllers.api.Graphs.update(id: Long)
+DELETE  /api/v1/author/graph/:id               controllers.api.Graphs.delete(id: Long)
+
+POST    /api/v1/author/node                    controllers.api.Nodes.create
+GET     /api/v1/author/node/:id                controllers.api.Nodes.get(id: Long)
+POST    /api/v1/author/node/:id                controllers.api.Nodes.update(id: Long)
+DELETE  /api/v1/author/node/:id                controllers.api.Nodes.delete(id: Long)
+
+POST    /api/v1/author/nodepool                controllers.api.NodePools.create
+GET     /api/v1/author/nodepool/:id            controllers.api.NodePools.get(id: Long)
+POST    /api/v1/author/nodepool/:id            controllers.api.NodePools.update(id: Long)
+DELETE  /api/v1/author/nodepool/:id            controllers.api.NodePools.delete(id: Long)
+
+POST    /api/v1/author/nodecontent             controllers.api.NodeContents.create
+GET     /api/v1/author/nodecontent/:id         controllers.api.NodeContents.get(id: Long)
+POST    /api/v1/author/nodecontent/:id         controllers.api.NodeContents.update(id: Long)
+DELETE  /api/v1/author/nodecontent/:id         controllers.api.NodeContents.delete(id: Long)
+
+# Preflight
+OPTIONS /api/v1/*path                          controllers.api.Authentication.options(path: String)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

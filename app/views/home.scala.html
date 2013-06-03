@@ -1,0 +1,72 @@
+@()(implicit request: RequestHeader, user: User)
+
+@main("ARCLITE PlayGraph - Home") {
+
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <a class="brand">PlayGraph</a>
+                <ul class="nav">
+                    <li class="active"><a href="#"><i class="icon-home"></i> Home</a></li>
+                    <li><a href="http://docs.playgraph.apiary.io/"><i class="icon-book"></i> View API Documentation</a></li>
+                    <li><a href="@routes.Application.logout()"><i class="icon-signout"></i> Log out</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <h1>Home</h1>
+
+        <h2>My Auth Tokens</h2>
+        @if(user.keys.isEmpty) {
+            <em>You don't have any yet.</em>
+        } else {
+            <table class="table table-bordered">
+                <tr>
+                    <th>Name</th>
+                    <th>Public Key</th>
+                    <th>Shared Secret</th>
+                    <th>Permission Level</th>
+                    <th>Delete</th>
+                </tr>
+                @for(key <- user.keys) {
+                    @defining(AuthToken.findByPublicKey(key).get) { authToken =>
+                      <tr>
+                          <td>@authToken.name</td>
+                          <td>@authToken.publicKey</td>
+                          <td>@authToken.secretKey</td>
+                          <td>@authToken.permission.name.capitalize</td>
+                          <td><a href="@routes.Application.deleteToken(authToken.publicKey)" class="btn btn-danger"><i class="icon-trash"></i></a></td>
+                      </tr>
+                    }
+                }
+            </table>
+        }
+
+        <h2>Create an Auth Token</h2>
+        <form class="form-horizontal" action="@routes.Application.createToken()" method="post">
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+                <div class="controls">
+                    <input type="text" id="name" name="name" placeholder="Name">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="permission">Permission Level</label>
+                <div class="controls">
+                    <select name="permission" id="permission">
+                        <option value="author">Author</option>
+                        <option value="player">Player</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn"><i class="icon-plus"></i> Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    
+    
+}

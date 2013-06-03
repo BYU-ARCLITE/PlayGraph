@@ -1,0 +1,32 @@
+@()(implicit request: RequestHeader)
+
+@main("ARCLITE PlayGraph - Create Account") {
+    <div class="container">
+        <h1>Create Account</h1>
+        <form class="form-horizontal" method="post" action="@routes.Application.createAccount()">
+            <div class="control-group">
+                <label class="control-label" for="username">Username</label>
+                <div class="controls">
+                    <input type="text" id="username" name="username" placeholder="Username">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input type="password" id="password" name="password" placeholder="Password">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="password2">Password Again</label>
+                <div class="controls">
+                    <input type="password" id="password" placeholder="Password Again">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-success">Create Account</button>
+                </div>
+            </div>
+        </form>
+    </div>
+}

@@ -37,6 +37,8 @@ case class User(id: Pk[Long], username: String, password: String, keys: List[Str
     delete(User.tableName, id)
   }
 
+  def getGraphs: List[Graph] = Graph.listByAuthorId(id.get)
+
 }
 
 object User extends SQLSelectable[User] {
@@ -63,6 +65,12 @@ object User extends SQLSelectable[User] {
       implicit connection =>
         anorm.SQL(s"select * from $tableName where username = {username} and password = {password}")
           .on('username -> username, 'password -> password).as(simple.singleOpt)
+    }
+
+  def findByKey(key: String): Option[User] =
+    DB.withConnection {
+      implicit connection =>
+        anorm.SQL(s"select * from $tableName where authKeys like {key}").on('key -> s"%$key%").as(simple.singleOpt)
     }
 
   /**

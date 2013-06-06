@@ -16,36 +16,76 @@
             </div>
         </div>
 
+        <h1>Launch the PlayGraph Authoring Tool</h1>
+
         <form action="@routes.Application.author()" method="post">
-            <form class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="author">Author Token</label>
-                    <div class="controls">
-                        <select name="author" id="author">
-                            @for(token <- tokens.filter(_.permission == 'author)) {
-                                <option value="@token.publicKey">@token.name</option>
-                            }
-                        </select>
+            <h2>1. Select your auth token(s)</h2>
+            <div class="control-group">
+                <label class="control-label" for="author">Author Token</label>
+                <div class="controls">
+                    <select name="author" id="author">
+                        @for(token <- tokens.filter(_.permission == 'author)) {
+                            <option value="@token.publicKey">@token.name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="player">Player Token</label>
+                <div class="controls">
+                    <select name="player" id="player">
+                        <option value="0">None</option>
+                        @for(token <- tokens.filter(_.permission == 'player)) {
+                            <option value="@token.publicKey">@token.name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <h2>2. Select which graph to edit</h2>
+            <div class="row-fluid">
+                <div class="span5">
+                    <div class="well" style="height: 200px;">
+                        <h3>Create a new graph</h3>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success" style="margin-top: 50px;"><i class="icon-plus"></i> Go!</button>
+                        </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="player">Player Token</label>
-                    <div class="controls">
-                        <select name="player" id="player">
-                            <option value="0">None</option>
-                            @for(token <- tokens.filter(_.permission == 'player)) {
-                                <option value="@token.publicKey">@token.name</option>
-                            }
-                        </select>
+                <div class="span2">
+                    <h3 class="text-center">Or</h3>
+                </div>
+                <div class="span5">
+                    <div class="well" style="height: 200px;">
+                        <h3>Edit an existing graph</h3>
+
+                        <div class="control-group">
+                            <label class="control-label" for="graph">Graph</label>
+                            <div class="controls">
+                                <select name="graph" id="graph">
+                                @for(graph <- user.getGraphs) {
+                                    <option value="@graph.id.get">Graph #@graph.id.get</option>
+                                }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-warning" id="edit"><i class="icon-pencil"></i> Edit</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn">Begin Authoring</button>
-                    </div>
-                </div>
-            </form>
+            </div>
+            <input type="hidden" id="action" name="action" value="create"/>
         </form>
     </div>
+
+    <script type="text/javascript">
+        $(function() {
+            $("#edit").click(function() {
+                $("#action").val("edit");
+            });
+        });
+    </script>
 
 }

@@ -1,7 +1,7 @@
 package controllers.api
 
 import play.api.mvc.Controller
-import models.Graph
+import models.{User, Graph}
 import anorm.NotAssigned
 import play.api.libs.json.Json
 
@@ -11,9 +11,10 @@ object Graphs extends Controller {
     request =>
       authToken =>
 
-      // Create the graph
+        // Create the graph
+        val user = User.findByKey(authToken.publicKey).get
         val params = request.body.asFormUrlEncoded.get.mapValues(_(0))
-        val graph = Graph(NotAssigned, params("startNode").toLong).save
+        val graph = Graph(NotAssigned, params("startNode").toLong, user.id.get).save
         Ok(Json.obj("success" -> true, "graph" -> graph.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 

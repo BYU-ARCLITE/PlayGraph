@@ -1,9 +1,11 @@
 package models
 
-import anorm.{Id, ~, Pk}
+import anorm.{~, Pk}
 import models.sqlTraits.{SQLSelectable, SQLDeletable, SQLSavable}
 import anorm.SqlParser._
-import play.api.libs.json.{JsValue, JsArray, Json}
+import play.api.libs.json.Json
+import play.api.db.DB
+import play.api.Play.current
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,7 +14,7 @@ import play.api.libs.json.{JsValue, JsArray, Json}
  * Time: 4:27 PM
  * To change this template use File | Settings | File Templates.
  */
-case class Graph(id: Pk[Long], startNode: Long) extends SQLSavable with SQLDeletable {
+case class Graph(id: Pk[Long], startNode: Long, authorId: Long) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the graph to the DB
@@ -20,10 +22,10 @@ case class Graph(id: Pk[Long], startNode: Long) extends SQLSavable with SQLDelet
    */
   def save: Graph = {
     if (id.isDefined) {
-      update(Graph.tableName, 'id -> id, 'startNode -> startNode)
+      update(Graph.tableName, 'id -> id, 'startNode -> startNode, 'authorId -> authorId)
       this
     } else {
-      val id = insert(Graph.tableName, 'startNode -> startNode)
+      val id = insert(Graph.tableName, 'startNode -> startNode, 'authorId -> authorId)
       this.copy(id)
     }
   }
@@ -37,7 +39,8 @@ case class Graph(id: Pk[Long], startNode: Long) extends SQLSavable with SQLDelet
 
   def toJson = Json.obj(
     "id" -> id.get,
-    "startNode" -> startNode
+    "startNode" -> startNode,
+    "authorId" -> authorId
   )
 }
 
@@ -46,8 +49,9 @@ object Graph extends SQLSelectable[Graph] {
 
   val simple = {
     get[Pk[Long]](tableName + ".id") ~
-      get[Long](tableName + ".startNode") map {
-      case id ~ startNode => Graph(id, startNode)
+      get[Long](tableName + ".startNode") ~
+      get[Long](tableName + ".authorId") map {
+      case id ~ startNode ~ authorId => Graph(id, startNode, authorId)
     }
   }
 
@@ -64,5 +68,16 @@ object Graph extends SQLSelectable[Graph] {
    */
   def list: List[Graph] = list(tableName, simple)
 
-  def fromJson(json: JsValue) = Graph(Id((json \ "id").as[Long]), (json \ "startNode").as[Long])
+  def listByAuthorId(authorId: Long): List[Graph] = {
+    DB.withConnection {
+      implicit connection =>
+        anorm.SQL("select * from " + tableName + " where authorId = {id}").on('id -> authorId).as(simple *)
+    }
+  }
+
+  //  def fromJson(json: JsValue) = Graph(
+  //    Id((json \ "id").as[Long]),
+  //    (json \ "startNode").as[Long],
+  //    (json \ "startNode").as[Long]
+  //  )
 }

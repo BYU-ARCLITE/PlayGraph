@@ -1,4 +1,4 @@
-@(authorToken: AuthToken, playerToken: Option[AuthToken])(implicit request: RequestHeader)
+@(authorToken: AuthToken, playerToken: Option[AuthToken], graphId: Long)(implicit request: RequestHeader)
 
 <!doctype html>
 <html lang="en-US">
@@ -59,13 +59,6 @@
 <script type="text/javascript">
     $(function() {
 
-        function getParameterByName(name) {
-            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                    results = regex.exec(location.search);
-            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-
         // Set up the tabs
         $(".contentTab").click(function() {
             $(".contentDisplayPane").removeClass("selected");
@@ -76,7 +69,7 @@
         });
 
         var authorTool = new PlayGraph.AuthorTool({
-            graphId: getParameterByName("graphId"),
+            graphId: @graphId,
 
             // Provide access to parts of the page
             $data: $("#data"),

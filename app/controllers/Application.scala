@@ -92,7 +92,11 @@ object Application extends Controller {
       implicit user =>
         val authorToken = AuthToken.findByPublicKey(request.body("author")(0)).get
         val playerToken = AuthToken.findByPublicKey(request.body("player")(0))
-        Ok(views.html.author(authorToken, playerToken))
+
+        val graphId =
+          if (request.body("action")(0) == "edit") request.body("graph")(0).toLong
+          else 0
+        Ok(views.html.author(authorToken, playerToken, graphId))
   }
 
 }

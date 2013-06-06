@@ -353,8 +353,14 @@ var PlayGraph = (function () {
                 var sizeCache = {};
                 var positionCache = {};
 
+                // Fill with white
                 context.fillStyle = "#ffffff";
                 context.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw the graph name
+                context.font = "16px Georgia";
+                context.fillStyle = "#666666";
+                context.fillText("Graph #" + graph.id, 10, 20);
 
                 // Begin the graph rendering algorithm
 
@@ -429,11 +435,11 @@ var PlayGraph = (function () {
                         context.stroke();
 
                         // Draw the id
-                        context.font = "20px Georgia";
+                        context.font = "14px Arial";
                         context.fillStyle = "#000000";
                         var name = "" + node.id;
                         var metrics = context.measureText(name);
-                        context.fillText(name, node.x - (metrics.width / 2), node.y + 5);
+                        context.fillText(name, node.x - (metrics.width / 2), node.y + 4);
                     });
                 }
 

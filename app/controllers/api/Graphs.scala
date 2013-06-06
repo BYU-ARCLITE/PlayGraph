@@ -14,7 +14,7 @@ object Graphs extends Controller {
       // Create the graph
         val params = request.body.asFormUrlEncoded.get.mapValues(_(0))
         val graph = Graph(NotAssigned, params("startNode").toLong).save
-        Ok(Json.obj("success" -> true, "graph" -> graph.id.get)).withHeaders("Access-Control-Allow-Origin" -> "*")
+        Ok(Json.obj("success" -> true, "graph" -> graph.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
   def get(id: Long) = Authentication.authenticatedAction('author) {

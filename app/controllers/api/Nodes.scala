@@ -16,7 +16,7 @@ object Nodes extends Controller {
         val contentType = Symbol(params("contentType"))
         val transitions = Json.parse(params("transitions")).as[JsArray].value.toList.map(Transition.fromJson(_))
         val node = Node(NotAssigned, contentId, contentType, transitions).save
-        Ok(Json.obj("success" -> true, "node" -> node.id.get)).withHeaders("Access-Control-Allow-Origin" -> "*")
+        Ok(Json.obj("success" -> true, "node" -> node.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
   def get(id: Long) = Authentication.authenticatedAction('author) {

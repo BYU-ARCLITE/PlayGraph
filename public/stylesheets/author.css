@@ -1,0 +1,103 @@
+#container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#menu {
+    width: 100%;
+    background: #f5f5f5;
+    padding: 7px 0;
+    border-bottom: 1px solid #aaa;
+    height: 30px;
+}
+
+#menu > .pull-right > a,
+#menu > .pull-left > button,
+#menu > .pull-right > button {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#menu > .pull-left > button:first-child {
+    margin-left: 10px;
+}
+
+#menu > .pull-right > button:last-child,
+#menu > .pull-right > a:last-child {
+    margin-right: 10px;
+}
+
+#horizontalHolder {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#graphHolder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+
+    background: white;
+
+    /* Create a right border with an inset box shadow */
+    box-shadow: inset -1px 0 0 #aaa, inset -5px 0 0 #f5f5f5, inset -6px 0 0 #aaa;
+}
+
+#contentHolder {
+    position: absolute;
+    top: 0;
+    left: 25%;
+    width: 75%;
+    height: 100%;
+
+    background: white;
+
+    /*-webkit-box-shadow: inset 1px 1px 50px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: inset 1px 1px 50px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 1px 1px 50px rgba(0, 0, 0, 0.2);*/
+}
+
+#contentTabHolder {
+    width: auto;
+    height: 40px;
+    background: #999;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.2);
+}
+
+.contentTab {
+    display: inline-block;
+    height: 26px;
+    margin: 1px 10px 0;
+    width: 131px;
+    padding-top: 13px;
+    padding-right: 10px;
+    text-align: center;
+
+    background: url(../images/tab.png);
+    cursor: pointer;
+}
+
+.contentTab.selected {
+    background: url(../images/tab-active.png);
+    cursor: default;
+}
+
+.contentDisplayPane {
+    display: none;
+}
+
+.contentDisplayPane.selected {
+    display: block;
+}
+
+#mainContent {
+    padding: 10px;
+}

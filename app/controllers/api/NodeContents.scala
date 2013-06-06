@@ -14,7 +14,7 @@ object NodeContents extends Controller {
       // Create the node content
         val params = request.body.asFormUrlEncoded.get.mapValues(_(0))
         val nodeContent = NodeContent(NotAssigned, params("content")).save
-        Ok(Json.obj("success" -> true, "nodeContent" -> nodeContent.id.get)).withHeaders("Access-Control-Allow-Origin" -> "*")
+        Ok(Json.obj("success" -> true, "nodeContent" -> nodeContent.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
   def get(id: Long) = Authentication.authenticatedAction('author) {

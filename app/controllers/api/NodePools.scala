@@ -15,7 +15,7 @@ object NodePools extends Controller {
         val params = request.body.asFormUrlEncoded.get.mapValues(_(0))
         val nodes = params("nodes").split(",").map(_.toLong).toSet
         val nodePool = NodePool(NotAssigned, nodes, params("script")).save
-        Ok(Json.obj("success" -> true, "nodePool" -> nodePool.id.get)).withHeaders("Access-Control-Allow-Origin" -> "*")
+        Ok(Json.obj("success" -> true, "nodePool" -> nodePool.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
   def get(id: Long) = Authentication.authenticatedAction('author) {

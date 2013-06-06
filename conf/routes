@@ -15,6 +15,10 @@ POST    /home/authToken                        controllers.Application.createTok
 GET     /home/authToken/:id/delete             controllers.Application.deleteToken(id: String)
 GET     /logout                                controllers.Application.logout
 
+# Authoring Tool
+GET     /author                                controllers.Application.authorToken
+POST    /author                                controllers.Application.author
+
 # API Definition
 POST    /api/v1/player/start                   controllers.api.Player.start
 POST    /api/v1/player/update                  controllers.api.Player.update

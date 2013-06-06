@@ -279,7 +279,7 @@ case class OAuthRequest(
     // Add the body hash (used for content types other than url encoded)
     // http://oauth.googlecode.com/svn/spec/ext/body_hash/1.0/drafts/4/spec.html
     val isValidMethod = method.toUpperCase != "GET" && method.toUpperCase != "HEAD"
-    val isValidContentType = contentTypeHeader.isDefined && contentTypeHeader.get != OAuthValues.urlEncodedContentType
+    val isValidContentType = contentTypeHeader.isDefined && !contentTypeHeader.get.startsWith(OAuthValues.urlEncodedContentType)
     if (isValidMethod && isValidContentType) {
 
       // We meet the criteria for a body hash, so create one

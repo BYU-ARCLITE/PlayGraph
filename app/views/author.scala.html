@@ -1,0 +1,124 @@
+@(authorToken: AuthToken, playerToken: Option[AuthToken])(implicit request: RequestHeader)
+
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>PlayGraph Authoring Interface</title>
+
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.min.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/author.css")"/>
+    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/sha1.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/oauth.js")"></script>
+
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/author/PlayGraph.js")"></script>
+</head>
+<body>
+
+<div id="container">
+    <div id="menu">
+        <div class="pull-left">
+            <button class="btn" id="newNode"><i class="icon-plus"></i> New Node</button>
+            <button class="btn" id="delete"><i class="icon-trash"></i> Delete</button>
+        </div>
+        <div class="pull-right">
+            @if(playerToken.isDefined) {
+                <button class="btn" id="preview"><i class="icon-play"></i> Preview</button>
+            }
+            <a href="@routes.Application.home()" class="btn"><i class="icon-signout"></i> Exit</a>
+        </div>
+    </div>
+    <div id="horizontalHolder">
+        <div id="graphHolder">
+
+        </div>
+        <div id="contentHolder">
+            <div id="contentTabHolder">
+                <div data-target="#content" class="contentTab selected">Content</div>
+                <div data-target="#transitions" class="contentTab">Transitions</div>
+                <div data-target="#settings" class="contentTab">Settings</div>
+            </div>
+
+            <div id="mainContent">
+                <div id="content" class="contentDisplayPane selected">
+                    <div id="data"></div>
+                    <div id="graph"></div>
+                    <div id="nodePool"></div>
+                </div>
+                <div id="transitions" class="contentDisplayPane">Transitions</div>
+                <div id="settings" class="contentDisplayPane">Settings</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        // Set up the tabs
+        $(".contentTab").click(function() {
+            $(".contentDisplayPane").removeClass("selected");
+            $(".contentTab").removeClass("selected");
+
+            $($(this).attr("data-target")).addClass("selected");
+            $(this).addClass("selected");
+        });
+
+        var authorTool = new PlayGraph.AuthorTool({
+            graphId: getParameterByName("graphId"),
+
+            // Provide access to parts of the page
+            $data: $("#data"),
+            $graph: $("#graph"),
+            $graphHolder: $("#graphHolder"),
+            $nodePool: $("#nodePool"),
+            $settings: $("#settings"),
+            $transitions: $("#transitions"),
+
+            // Provide the widgets
+            DataEditor: PlayGraph.defaultObjects.DataEditor,
+            GraphRenderer: PlayGraph.defaultObjects.GraphRenderer,
+            nameRenderer: PlayGraph.defaultObjects.nameRenderer,
+            NodeSelector: PlayGraph.defaultObjects.NodeSelector,
+            TransitionRuleEditor: PlayGraph.defaultObjects.TransitionRuleEditor,
+
+            // Provide the credentials for the API
+            publicKey: "@authorToken.publicKey",
+            sharedSecret: "@authorToken.secretKey",
+            host: "http://localhost:9000/"
+        });
+
+        $("#newNode").click(function() {
+            authorTool.newNode();
+        });
+
+        $("#delete").click(function() {
+            authorTool.delete();
+        });
+
+        @if(playerToken.isDefined) {
+            $("#preview").click(function() {
+                var graphId = authorTool.graphId;
+                var key = "@playerToken.get.publicKey";
+                var secret = "@playerToken.get.secretKey";
+                var url = "/assets/player.html?graphId=" + graphId + "&key=" + key + "&secret=" + secret;
+                window.open(url, "playGraphPreview");
+            });
+        }
+
+    });
+</script>
+
+</body>
+</html>

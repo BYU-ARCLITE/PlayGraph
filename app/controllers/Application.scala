@@ -80,4 +80,19 @@ object Application extends Controller {
     Redirect(routes.Application.index()).withNewSession
   }
 
+  def authorToken = authenticatedAction {
+    implicit request =>
+      implicit user =>
+        val tokens = user.keys.map(AuthToken.findByPublicKey(_).get)
+        Ok(views.html.authorTokens(tokens))
+  }
+
+  def author = authenticatedAction(parse.urlFormEncoded) {
+    implicit request =>
+      implicit user =>
+        val authorToken = AuthToken.findByPublicKey(request.body("author")(0)).get
+        val playerToken = AuthToken.findByPublicKey(request.body("player")(0))
+        Ok(views.html.author(authorToken, playerToken))
+  }
+
 }

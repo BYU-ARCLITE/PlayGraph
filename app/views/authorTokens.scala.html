@@ -1,0 +1,51 @@
+@(tokens: List[AuthToken])(implicit request: RequestHeader, user: User)
+
+@main("ARCLITE PlayGraph - Authoring Tool") {
+
+    <div class="container">
+
+        <div class="navbar">
+            <div class="navbar-inner">
+                <a class="brand">PlayGraph</a>
+                <ul class="nav">
+                    <li><a href="@routes.Application.home()"><i class="icon-home"></i> Home</a></li>
+                    <li class="active"><a href="#"><i class="icon-edit"></i> Author</a></li>
+                    <li><a href="http://docs.playgraph.apiary.io/"><i class="icon-book"></i> View API Documentation</a></li>
+                    <li><a href="@routes.Application.logout()"><i class="icon-signout"></i> Log out</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <form action="@routes.Application.author()" method="post">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="author">Author Token</label>
+                    <div class="controls">
+                        <select name="author" id="author">
+                            @for(token <- tokens.filter(_.permission == 'author)) {
+                                <option value="@token.publicKey">@token.name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="player">Player Token</label>
+                    <div class="controls">
+                        <select name="player" id="player">
+                            <option value="0">None</option>
+                            @for(token <- tokens.filter(_.permission == 'player)) {
+                                <option value="@token.publicKey">@token.name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" class="btn">Begin Authoring</button>
+                    </div>
+                </div>
+            </form>
+        </form>
+    </div>
+
+}

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>PlayGraph Preview</title>
+
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
+    <link rel="stylesheet" href="stylesheets/font-awesome.min.css"/>
+    <link rel="stylesheet" href="stylesheets/author.css"/>
+
+    <script type="text/javascript" src="javascripts/jquery-1.9.0.min.js"></script>
+    <script type="text/javascript" src="javascripts/sha1.js"></script>
+    <script type="text/javascript" src="javascripts/oauth.js"></script>
+
+    <script type="text/javascript" src="javascripts/author/PlayGraph.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div id="player"></div>
+</div>
+
+<script type="text/javascript">
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    var $player = $("#player");
+    var nextButtonTemplate = "<button class='btn'><i class='icon-arrow-right'></i> Next</button>";
+    var status;
+
+    function loadPage() {
+        PlayGraph.player.content(function (content) {
+            $player.html(content);
+            if (status === "continue") {
+                var $button = $(nextButtonTemplate);
+                $player.append($("<div></div>").append($button));
+                $button.click(function () {
+                    $player.html("");
+                    PlayGraph.player.update(PlayGraph.player.data, function(_status) {
+                        status = _status;
+                        loadPage();
+                    });
+                });
+            }
+        });
+    }
+
+    $(function() {
+        var key = getParameterByName("key");
+        var secret = getParameterByName("secret");
+        PlayGraph.setAPICredentials("http://localhost:9000/", key, secret);
+
+        // Start the graph playback
+        var graphId = + getParameterByName("graphId");
+        PlayGraph.player.start(graphId, function () {
+            status = "continue";
+            loadPage();
+        });
+    });
+</script>
+
+
+</body>
+</html>

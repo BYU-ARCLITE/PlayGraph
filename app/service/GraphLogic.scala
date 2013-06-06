@@ -27,9 +27,15 @@ object GraphLogic {
     // Run each transition rule script until one return true
     val cx = Context.enter()
     val scope = cx.initStandardObjects()
-    node.transitions.find(transition =>
-      cx.evaluateString(scope, variablePrefix + transition.rule, "Transition rule script", 1, null).asInstanceOf[Boolean]
-    ).map(_.targetId).getOrElse(0)
+    node.transitions.find(transition => {
+      var result: Boolean = false
+      try {
+        result = cx.evaluateString(scope, variablePrefix + transition.rule, "Transition rule script", 1, null).asInstanceOf[Boolean]
+      } catch {
+        case _: Throwable => result = false
+      }
+      result
+    }).map(_.targetId).getOrElse(0)
   }
 
   /**

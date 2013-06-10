@@ -1,18 +1,19 @@
+@()(implicit request: RequestHeader)
+
 <!doctype html>
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <title>PlayGraph Preview</title>
 
-    <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
-    <link rel="stylesheet" href="stylesheets/font-awesome.min.css"/>
-    <link rel="stylesheet" href="stylesheets/author.css"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.min.css")"/>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/author.css")"/>
 
-    <script type="text/javascript" src="javascripts/jquery-1.9.0.min.js"></script>
-    <script type="text/javascript" src="javascripts/sha1.js"></script>
-    <script type="text/javascript" src="javascripts/oauth.js"></script>
-
-    <script type="text/javascript" src="javascripts/author/PlayGraph.js"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/sha1.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/oauth.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/author/PlayGraph.js")"></script>
 </head>
 <body>
 
@@ -52,7 +53,8 @@
     $(function() {
         var key = getParameterByName("key");
         var secret = getParameterByName("secret");
-        PlayGraph.setAPICredentials("http://localhost:9000/", key, secret);
+        var host = "http://@request.host/";
+        PlayGraph.setAPICredentials(host, key, secret);
 
         // Start the graph playback
         var graphId = + getParameterByName("graphId");

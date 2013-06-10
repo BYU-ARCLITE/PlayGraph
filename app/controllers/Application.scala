@@ -99,4 +99,9 @@ object Application extends Controller {
         Ok(views.html.author(authorToken, playerToken, graphId))
   }
 
+  def player = Action {
+    implicit request =>
+      Ok(views.html.player())
+  }
+
 }

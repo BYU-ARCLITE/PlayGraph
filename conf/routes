@@ -18,6 +18,7 @@ GET     /logout                                controllers.Application.logout
 # Authoring Tool
 GET     /author                                controllers.Application.authorToken
 POST    /author                                controllers.Application.author
+GET     /player                                controllers.Application.player
 
 # API Definition
 POST    /api/v1/player/start                   controllers.api.Player.start

@@ -89,7 +89,7 @@
             // Provide the credentials for the API
             publicKey: "@authorToken.publicKey",
             sharedSecret: "@authorToken.secretKey",
-            host: "http://localhost:9000/"
+            host: "http://@request.host/"
         });
 
         $("#newNode").click(function() {
@@ -105,7 +105,7 @@
                 var graphId = authorTool.graphId;
                 var key = "@playerToken.get.publicKey";
                 var secret = "@playerToken.get.secretKey";
-                var url = "/assets/player.html?graphId=" + graphId + "&key=" + key + "&secret=" + secret;
+                var url = "/player?graphId=" + graphId + "&key=" + key + "&secret=" + secret;
                 window.open(url, "playGraphPreview");
             });
         }

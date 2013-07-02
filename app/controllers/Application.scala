@@ -87,16 +87,20 @@ object Application extends Controller {
         Ok(views.html.authorTokens(tokens))
   }
 
-  def author = authenticatedAction(parse.urlFormEncoded) {
+  def author = Action(parse.urlFormEncoded) {
     implicit request =>
-      implicit user =>
-        val authorToken = AuthToken.findByPublicKey(request.body("author")(0)).get
-        val playerToken = AuthToken.findByPublicKey(request.body("player")(0))
+      val authorToken = AuthToken.findByPublicKey(request.body("author")(0)).get
+      val playerToken = AuthToken.findByPublicKey(request.body("player")(0))
 
+      // Don't require a user to be logged in. Instead get the user from the author token
+      val user = User.findByKey(authorToken.publicKey)
+      if (user.isDefined) {
         val graphId =
           if (request.body("action")(0) == "edit") request.body("graph")(0).toLong
           else 0
         Ok(views.html.author(authorToken, playerToken, graphId))
+      } else
+        Forbidden("Invalid author token")
   }
 
   def player = Action {

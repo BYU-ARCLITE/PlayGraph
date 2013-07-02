@@ -72,4 +72,22 @@ object Player extends Controller {
           NotFound.withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
+  def settings(sessionId: Long) = Authentication.authenticatedAction('player) {
+    request =>
+      authToken =>
+
+        // Check that the session with matching key exists
+        val session = GraphSession.findById(sessionId)
+        if (session.isDefined && session.get.publicKey == authToken.publicKey) {
+
+          // Check that the session is still "in progress"
+          if (session.get.finished == 0) {
+            Ok(GraphSimulator.getCurrentSettings(session.get)).withHeaders("Access-Control-Allow-Origin" -> "*")
+          } else
+            Forbidden(Json.obj("message" -> "This session is already completed"))
+              .withHeaders("Access-Control-Allow-Origin" -> "*")
+        } else
+          NotFound.withHeaders("Access-Control-Allow-Origin" -> "*")
+  }
+
 }

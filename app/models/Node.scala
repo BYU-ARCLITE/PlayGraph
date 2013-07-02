@@ -6,7 +6,8 @@ import models.sqlTraits.{SQLSelectable, SQLDeletable, SQLSavable}
 import play.api.libs.json.{JsArray, Json}
 
 
-case class Node(id: Pk[Long], contentId: Long, contentType: Symbol, transitions: List[Transition] = Nil)
+case class Node(id: Pk[Long], contentId: Long, contentType: Symbol, transitions: List[Transition] = Nil,
+                settings: String)
   extends SQLSavable with SQLDeletable {
 
   /**
@@ -16,11 +17,11 @@ case class Node(id: Pk[Long], contentId: Long, contentType: Symbol, transitions:
   def save: Node = {
     if (id.isDefined) {
       update(Node.tableName, 'id -> id, 'contentId -> contentId, 'contentType -> contentType.name,
-        'transitions -> transitions.map(_.toJson).mkString("[", ",", "]"))
+        'transitions -> transitions.map(_.toJson).mkString("[", ",", "]"), 'settings -> settings)
       this
     } else {
       val id = insert(Node.tableName, 'contentId -> contentId, 'contentType -> contentType.name,
-        'transitions -> transitions.map(_.toJson).mkString("[", ",", "]"))
+        'transitions -> transitions.map(_.toJson).mkString("[", ",", "]"), 'settings -> settings)
       this.copy(id)
     }
   }
@@ -38,7 +39,8 @@ case class Node(id: Pk[Long], contentId: Long, contentType: Symbol, transitions:
     "id" -> id.get,
     "contentId" -> contentId,
     "contentType" -> contentType.name,
-    "transitions" -> transitions.map(_.toJson)
+    "transitions" -> transitions.map(_.toJson),
+    "settings" -> settings
   )
 
 }
@@ -50,10 +52,11 @@ object Node extends SQLSelectable[Node] {
     get[Pk[Long]](tableName + ".id") ~
       get[Long](tableName + ".contentId") ~
       get[String](tableName + ".contentType") ~
-      get[String](tableName + ".transitions") map {
-      case id ~ contentId ~ contentType ~ transitions =>
+      get[String](tableName + ".transitions") ~
+      get[String](tableName + ".settings") map {
+      case id ~ contentId ~ contentType ~ transitions ~ settings =>
         Node(id, contentId, Symbol(contentType),
-          Json.parse(transitions).as[JsArray].value.map(j => Transition.fromJson(j)).toList)
+          Json.parse(transitions).as[JsArray].value.map(j => Transition.fromJson(j)).toList, settings)
     }
   }
 

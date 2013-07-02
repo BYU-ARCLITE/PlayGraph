@@ -24,6 +24,7 @@ GET     /player                                controllers.Application.player
 POST    /api/v1/player/start                   controllers.api.Player.start
 POST    /api/v1/player/update                  controllers.api.Player.update
 GET     /api/v1/player/content/:sessionId      controllers.api.Player.render(sessionId: Long)
+GET     /api/v1/player/settings/:sessionId     controllers.api.Player.settings(sessionId: Long)
 
 POST    /api/v1/author/graph                   controllers.api.Graphs.create
 GET     /api/v1/author/graph/:id               controllers.api.Graphs.get(id: Long)

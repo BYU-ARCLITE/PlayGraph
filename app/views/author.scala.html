@@ -1,4 +1,8 @@
-@(authorToken: AuthToken, playerToken: Option[AuthToken], graphId: Long)(implicit request: RequestHeader)
+@(authorToken: AuthToken, playerToken: Option[AuthToken], graphId: Long)(implicit request: Request[Map[String, Seq[String]]])
+
+@exitRoute = @{
+    request.body.get("exit").map(_(0)).getOrElse(routes.Application.home().toString())
+}
 
 <!doctype html>
 <html lang="en-US">
@@ -9,8 +13,9 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"/>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/font-awesome.min.css")"/>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/author.css")"/>
-    
+
     <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/sha1.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/oauth.js")"></script>
 
@@ -28,7 +33,7 @@
             @if(playerToken.isDefined) {
                 <button class="btn" id="preview"><i class="icon-play"></i> Preview</button>
             }
-            <a href="@routes.Application.home()" class="btn"><i class="icon-signout"></i> Exit</a>
+            <a href="@exitRoute" class="btn"><i class="icon-signout"></i> Exit</a>
         </div>
     </div>
     <div id="horizontalHolder">
@@ -55,9 +60,18 @@
     </div>
 </div>
 
+@* Possibly include custom widgets *@
+@if(request.body.contains("widgets")) {
+    <script src="@request.body("widgets")(0)"></script>
+}
 
 <script type="text/javascript">
     $(function() {
+
+        var graphId = @graphId;
+        var publicKey = "@authorToken.publicKey";
+        var sharedSecret = "@authorToken.secretKey";
+        var host = "http://@request.host/";
 
         // Set up the tabs
         $(".contentTab").click(function() {
@@ -69,7 +83,7 @@
         });
 
         var authorTool = new PlayGraph.AuthorTool({
-            graphId: @graphId,
+            graphId: graphId,
 
             // Provide access to parts of the page
             $data: $("#data"),
@@ -80,16 +94,18 @@
             $transitions: $("#transitions"),
 
             // Provide the widgets
-            DataEditor: PlayGraph.defaultObjects.DataEditor,
-            GraphRenderer: PlayGraph.defaultObjects.GraphRenderer,
-            nameRenderer: PlayGraph.defaultObjects.nameRenderer,
-            NodeSelector: PlayGraph.defaultObjects.NodeSelector,
-            TransitionRuleEditor: PlayGraph.defaultObjects.TransitionRuleEditor,
+            initializer:            PlayGraph.registeredObjects.initializer || function(a,b,c){c();},
+            DataEditor:             PlayGraph.registeredObjects.DataEditor || PlayGraph.defaultObjects.DataEditor,
+            GraphRenderer:          PlayGraph.registeredObjects.GraphRenderer || PlayGraph.defaultObjects.GraphRenderer,
+            nameRenderer:           PlayGraph.registeredObjects.nameRenderer || PlayGraph.defaultObjects.nameRenderer,
+            NodeSelector:           PlayGraph.registeredObjects.NodeSelector || PlayGraph.defaultObjects.NodeSelector,
+            TransitionRuleEditor:   PlayGraph.registeredObjects.TransitionRuleEditor || PlayGraph.defaultObjects.TransitionRuleEditor,
+            SettingsEditor:         PlayGraph.registeredObjects.SettingsEditor || PlayGraph.defaultObjects.SettingsEditor,
 
             // Provide the credentials for the API
-            publicKey: "@authorToken.publicKey",
-            sharedSecret: "@authorToken.secretKey",
-            host: "http://@request.host/"
+            publicKey: publicKey,
+            sharedSecret: sharedSecret,
+            host: host
         });
 
         $("#newNode").click(function() {
@@ -102,10 +118,14 @@
 
         @if(playerToken.isDefined) {
             $("#preview").click(function() {
-                var graphId = authorTool.graphId;
-                var key = "@playerToken.get.publicKey";
-                var secret = "@playerToken.get.secretKey";
-                var url = "/player?graphId=" + graphId + "&key=" + key + "&secret=" + secret;
+                @if(request.body.contains("play")) {
+                    var url = "@request.body("play")(0)";
+                } else {
+                    var graphId = authorTool.graphId;
+                    var key = "@playerToken.get.publicKey";
+                    var secret = "@playerToken.get.secretKey";
+                    var url = "/player?graphId=" + graphId + "&key=" + key + "&secret=" + secret;
+                }
                 window.open(url, "playGraphPreview");
             });
         }

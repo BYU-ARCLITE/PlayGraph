@@ -15,7 +15,8 @@ object Nodes extends Controller {
         val contentId = params("contentId").toLong
         val contentType = Symbol(params("contentType"))
         val transitions = Json.parse(params("transitions")).as[JsArray].value.toList.map(Transition.fromJson(_))
-        val node = Node(NotAssigned, contentId, contentType, transitions).save
+        val settings = params("settings")
+        val node = Node(NotAssigned, contentId, contentType, transitions, settings).save
         Ok(Json.obj("success" -> true, "node" -> node.toJson)).withHeaders("Access-Control-Allow-Origin" -> "*")
   }
 
@@ -46,8 +47,9 @@ object Nodes extends Controller {
           val transitions = params.get("transitions")
             .map(Json.parse(_).as[JsArray].value.toList.map(Transition.fromJson(_)))
             .getOrElse(node.get.transitions)
-          val updatedNode = node.get.copy(contentId = contentId, contentType = contentType, transitions = transitions)
-            .save
+          val settings = params.get("settings").getOrElse(node.get.settings)
+          val updatedNode = node.get.copy(contentId = contentId, contentType = contentType, transitions = transitions,
+            settings = settings).save
           Ok(Json.obj("success" -> true, "node" -> updatedNode.toJson))
             .withHeaders("Access-Control-Allow-Origin" -> "*")
         } else // Node not found

@@ -129,6 +129,7 @@ var PlayGraph = (function () {
         this.contentId = 0;
         this.content = "";
         this.transitions = [];
+        this.settings = "";
 
         function saveContent(contentData, callback) {
             if (contentData.contentType === "data") {
@@ -197,6 +198,7 @@ var PlayGraph = (function () {
 
         function save(data, callback) {
             _this.transitions = data.transitions || _this.transitions;
+            _this.settings = data.settings || _this.settings;
             saveContent(data, function (contentId) {
                 if (_this.id === 0) {
                     oauthAjax(host + "api/v1/author/node", {
@@ -204,7 +206,8 @@ var PlayGraph = (function () {
                         data: {
                             contentId: contentId,
                             contentType: data.contentType,
-                            transitions: JSON.stringify(_this.transitions)
+                            transitions: JSON.stringify(_this.transitions),
+                            settings: _this.settings
                         },
                         success: function(data) {
                             _this.id = data.node.id;
@@ -217,7 +220,8 @@ var PlayGraph = (function () {
                         data: {
                             contentId: contentId,
                             contentType: data.contentType,
-                            transitions: JSON.stringify(_this.transitions)
+                            transitions: JSON.stringify(_this.transitions),
+                            settings: _this.settings
                         },
                         success: function() {
                             callback(_this);
@@ -237,6 +241,7 @@ var PlayGraph = (function () {
                     _this.transitions = data.transitions.map(function (t) {
                         return new Transition({targetId: t.targetId, rule: t.rule});
                     });
+                    _this.settings = data.settings;
 
                     if (_this.contentType === "data") {
                         oauthAjax(host + "api/v1/author/nodecontent/" + _this.contentId, {
@@ -697,6 +702,18 @@ var PlayGraph = (function () {
         return TransitionEditor;
     }());
 
+
+
+    var SettingsEditor = (function() {
+        function SettingsEditor(args) {
+            args.$holder.html("There are no settings available.");
+        }
+        SettingsEditor.prototype.setNode = function(node) {};
+        SettingsEditor.prototype.addEventListener = function(event, callback) {};
+
+        return SettingsEditor;
+    })();
+
     /*
      *   This is the main part which connects everything together
      * ============================================================
@@ -773,47 +790,61 @@ var PlayGraph = (function () {
                 _this.dataEditor.setValue(node.content);
                 _this.transitionEditor.transitions = currentNode.transitions;
                 _this.graphRenderer.update();
+                _this.settingsEditor.setNode(node);
             }
 
             loadGraph(args.graphId, function() {
 
-                // Create the components
-                // Create the data editor
-                _this.dataEditor = new args.DataEditor({
-                    $holder: args.$data
-                });
+                // Run the external initializer
+                args.initializer(graph, nodes, function() {
+                    // Create the components
+                    // Create the data editor
+                    _this.dataEditor = new args.DataEditor({
+                        $holder: args.$data
+                    });
 
-                _this.dataEditor.addEventListener("update", function() {
-                    currentNode.content = _this.dataEditor.getValue();
-                    currentNode.save();
-                });
+                    _this.dataEditor.addEventListener("update", function() {
+                        currentNode.content = _this.dataEditor.getValue();
+                        currentNode.save();
+                        _this.transitionEditor.update();
+                    });
 
-                // Create the graph renderer
-                _this.graphRenderer = new args.GraphRenderer({
-                    $holder: args.$graphHolder,
-                    graph: graph,
-                    nodes: nodes
-                });
+                    // Create the graph renderer
+                    _this.graphRenderer = new args.GraphRenderer({
+                        $holder: args.$graphHolder,
+                        graph: graph,
+                        nodes: nodes
+                    });
 
-                _this.graphRenderer.addEventListener("nodeSelect", function(event) {
-                    selectNode(nodes[event.nodeId])
-                });
+                    _this.graphRenderer.addEventListener("nodeSelect", function(event) {
+                        selectNode(nodes[event.nodeId])
+                    });
 
-                // Create the transition editor
-                _this.transitionEditor = new TransitionEditor({
-                    $holder: args.$transitions,
-                    TransitionRuleEditor: args.TransitionRuleEditor,
-                    nameRenderer: args.nameRenderer,
-                    NodeSelector: args.NodeSelector,
-                    nodes: nodes
-                });
-                _this.transitionEditor.addEventListener("update", function() {
-                    currentNode.transitions = _this.transitionEditor.transitions;
-                    currentNode.save();
-                    _this.graphRenderer.update();
-                });
+                    // Create the transition editor
+                    _this.transitionEditor = new TransitionEditor({
+                        $holder: args.$transitions,
+                        TransitionRuleEditor: args.TransitionRuleEditor,
+                        nameRenderer: args.nameRenderer,
+                        NodeSelector: args.NodeSelector,
+                        nodes: nodes
+                    });
+                    _this.transitionEditor.addEventListener("update", function() {
+                        currentNode.transitions = _this.transitionEditor.transitions;
+                        currentNode.save();
+                        _this.graphRenderer.update();
+                    });
 
-                selectNode(nodes[graph.startNode]);
+                    // Create the settings editor
+                    _this.settingsEditor = new args.SettingsEditor({
+                        $holder: args.$settings
+                    });
+                    _this.settingsEditor.addEventListener("update", function() {
+                        currentNode.settings = _this.settingsEditor.settings;
+                        currentNode.save();
+                    });
+
+                    selectNode(nodes[graph.startNode]);
+                });
             });
 
             Object.defineProperties(this, {
@@ -902,6 +933,20 @@ var PlayGraph = (function () {
         }
     }
 
+    function getPlaybackSettings(callback) {
+        if (status === "continue") {
+            oauthAjax(host + "api/v1/player/settings/" + sessionId, {
+                type: "get",
+                dataType: "text",
+                success: function(data) {
+                    callback(data);
+                }
+            });
+        } else {
+            callback("This PlayGraph is finished.");
+        }
+    }
+
     return {
         classes: {
             Graph: Graph,
@@ -916,13 +961,16 @@ var PlayGraph = (function () {
                 return "Node #" + node.id;
             },
             NodeSelector: NodeSelector,
+            SettingsEditor: SettingsEditor,
             TransitionRuleEditor: TransitionRuleEditor
         },
+        registeredObjects: {},
         AuthorTool: AuthorTool,
         player: {
             start: startPlayback,
             update: updatePlayback,
             content: getPlaybackContent,
+            settings: getPlaybackSettings,
             data: playbackData
         },
         oauthAjax: oauthAjax,

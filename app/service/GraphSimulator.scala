@@ -41,6 +41,27 @@ object GraphSimulator {
     NodeContent.findById(node.contentId).get.content
   }
 
+  /**
+   * Given a current session, return the settings of the currently displayed node
+   * @param session The graph session
+   * @return The current content
+   */
+  def getCurrentSettings(session: GraphSession): String = {
+    // Figure out which node we want
+    val nodeId =
+      if (session.state.current.isLeft) // We're at a node
+        session.state.current.left.get
+      else {
+        // We're in a dynamic tree
+        val dynamicTree = session.state.current.right.get
+        dynamicTree.nodes(dynamicTree.index)
+      }
+
+    // Get that node and return its contents
+    val node = Node.findById(nodeId).get
+    node.settings
+  }
+
   def progress(session: GraphSession, data: Map[String, String]): GraphSession = {
     // Process the results
     val state = GraphLogic.done(session.state, data)
